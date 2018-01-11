@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/household_sin"
+        android:layout_width="wrap_content"
+        android:text="Household SIN "
+        android:textStyle="bold"
+        android:layout_margin="5dp"
+        />
+    <ImageView
+        android:id="@+id/form_b"
+        android:text="Form C"
+
+        android:textStyle="bold"
+
+        />
+    <ImageView
+        android:id="@+id/form_c"
+        android:text="Form C"
+
+        android:textStyle="bold"
+
+        />
+    <ImageView
+        android:id="@+id/form_d"
+        android:text="Form D"
+        android:textStyle="bold"
+
+        />
+    <ImageView
+        android:id="@+id/form_e"
+        android:text="Form E"
+        android:textStyle="bold"
+
+        />
+    <ImageView
+        android:id="@+id/form_f"
+        android:text="Form F"
+        android:textStyle="bold"
+
+        />
+    <ImageView
+        android:id="@+id/form_g1"
+        android:text="Form G1"
+        android:textStyle="bold"
+
+        />
+    <ImageView
+        android:id="@+id/form_g2"
+        android:text="Form G2"
+        android:textStyle="bold"
+
+        />
+</TableRow>
