@@ -29,18 +29,24 @@
 
 package org.hisp.dhis.android.trackercapture;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+
+import com.squareup.otto.Subscribe;
 
 import org.hisp.dhis.android.sdk.controllers.DhisController;
 import org.hisp.dhis.android.sdk.controllers.DhisService;
 import org.hisp.dhis.android.sdk.controllers.LoadingController;
 import org.hisp.dhis.android.sdk.controllers.PeriodicSynchronizerController;
 import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.hisp.dhis.android.sdk.events.UiEvent;
 import org.hisp.dhis.android.sdk.network.Session;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.models.UserAccount;
@@ -68,6 +74,8 @@ public class MainActivity extends AbsHomeActivity {
     private static final String APPS_TRACKER_CAPTURE_REPORTS_PACKAGE =
             "org.hispindia.bidtrackerreports";
 
+
+    private PowerManager.WakeLock wakeLock;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +87,14 @@ public class MainActivity extends AbsHomeActivity {
             return;
         }
 
+        //though not recomeneded this one will act with special permission
+        //implemented to keep the device awake while visible
+        //by ifhaam on 7-2-2018
+        final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+        this.wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,"DHIS_TRACKER_CAPTURE");
+        this.wakeLock.acquire();
+        //change by ifhaam ends
+
         LoadingController.enableLoading(this, ResourceType.ASSIGNEDPROGRAMS);
         LoadingController.enableLoading(this, ResourceType.OPTIONSETS);
         LoadingController.enableLoading(this, ResourceType.PROGRAMS);
@@ -89,10 +105,13 @@ public class MainActivity extends AbsHomeActivity {
         LoadingController.enableLoading(this, ResourceType.PROGRAMRULEACTIONS);
         LoadingController.enableLoading(this, ResourceType.RELATIONSHIPTYPES);
 
-        Dhis2Application.bus.register(this);
+        //Dhis2Application.bus.register(this);
 
         PeriodicSynchronizerController.activatePeriodicSynchronizer(this);
         setUpNavigationView(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);//implemented
+        //for keeping the screen on while application running wihthout any special permission by
+        //ifhaam on 7-2-2018
     }
 
     private void setUpNavigationView(Bundle savedInstanceState) {
@@ -167,11 +186,33 @@ public class MainActivity extends AbsHomeActivity {
         loadInitialData();
     }
 
+    public void onDestroy(){
+        this.wakeLock.release();
+        super.onDestroy();
+    }
+
     @Override
     public void onDrawerOpened(View drawerView) {
         super.onDrawerOpened(drawerView);
         String lastSynced = DhisController.getInstance().getSyncDateWrapper().getLastSyncedString();
-        setSynchronizedMessage(lastSynced);
+        //setSynchronizedMessage(lastSynced);
+        //implementation by ifhaam on 7-2-2018 for sycning message
+        if(DhisController.getInstance().isSyncing()){
+            setSynchronizedMessage("Syncing...");
+        }else{
+            setSynchronizedMessage(lastSynced);
+        }
+        //change by ifhaam ends
+    }
+
+    @Subscribe
+    public void onSynchronizationFinishedEvent(final UiEvent event)
+    {
+        if(event.getEventType().equals(UiEvent.UiEventType.SYNCING_END))
+        {
+            String lastSynced = DhisController.getInstance().getSyncDateWrapper().getLastSyncedString();
+            setSynchronizedMessage(lastSynced);
+        }
     }
 
     @Override

@@ -169,7 +169,7 @@ public class SelectProgramFragment extends org.hisp.dhis.android.sdk.ui.fragment
             modelsToTrack.add(FailedItem.class);
             return new DbLoader<>(
                     getActivity().getBaseContext(), modelsToTrack,
-                    new SelectProgramFragmHISPentQuery(mState.getOrgUnitId(), mState.getProgramId()));
+                    new SelectProgramFragmentQuery(mState.getOrgUnitId(), mState.getProgramId()));
         }
         return null;
     }
