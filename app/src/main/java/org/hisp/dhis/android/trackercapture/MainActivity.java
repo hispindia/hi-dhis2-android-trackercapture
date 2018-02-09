@@ -62,9 +62,9 @@ public class MainActivity extends AbsHomeActivity {
     private static final String APPS_DATA_CAPTURE_PACKAGE =
             "org.dhis2.mobile";
     private static final String APPS_EVENT_CAPTURE_PACKAGE =
-            "org.hisp.dhis.android.eventcapture";
+            "org.hisp.dhis.android.tvha_eventcapture";
     private static final String APPS_TRACKER_CAPTURE_PACKAGE =
-            "org.hisp.dhis.android.trackercapture";
+            "org.hisp.dhis.android.tvha_trackercapture";
     private static final String APPS_TRACKER_CAPTURE_REPORTS_PACKAGE =
             "org.hispindia.bidtrackerreports";
 
