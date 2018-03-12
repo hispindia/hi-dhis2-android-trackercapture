@@ -66,7 +66,7 @@ public class MainActivity extends AbsHomeActivity {
     private static final String APPS_DASHBOARD_PACKAGE =
             "org.hisp.dhis.android.dashboard";
     private static final String APPS_DATA_CAPTURE_PACKAGE =
-            "org.dhis2.mobile";
+            "org.dhis2.mobile_dev";
     private static final String APPS_EVENT_CAPTURE_PACKAGE =
             "org.hisp.dhis.android.tvha_eventcapture";
     private static final String APPS_TRACKER_CAPTURE_PACKAGE =
@@ -240,6 +240,8 @@ public class MainActivity extends AbsHomeActivity {
             attachFragment(getInformationFragment());
             isSelected = true;
         }
+
+
         /*else if (menuItemId == R.id.drawer_item_help) {
             attachFragment(getHelpFragment());
             isSelected = true;
