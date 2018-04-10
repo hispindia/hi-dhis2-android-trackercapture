@@ -63,6 +63,7 @@ class ProgramOverviewFragmentQuery implements Query<ProgramOverviewFragmentForm>
     public static final String CLASS_TAG = ProgramOverviewFragmentQuery.class.getSimpleName();
 
     private final String mProgramId;
+    private final String EDD_PROGRAM_INDICATOR="SdgtP91yTCK";
     private final long mTrackedEntityInstanceId;
 
     public ProgramOverviewFragmentQuery(String programId, long trackedEntityInstanceId) {
@@ -125,7 +126,7 @@ class ProgramOverviewFragmentQuery implements Query<ProgramOverviewFragmentForm>
             //limiting program indicators only to EDD for tibet
             //to make the implementation fast
             for(ProgramIndicator indicator :programIndicators){
-                if(indicator.getUid().equals("cg7jSue3uTF")){
+                if(indicator.getUid().equals(EDD_PROGRAM_INDICATOR)){
                     String dateStr = programOverviewFragmentForm.getEnrollment().getIncidentDate();
 
                     dateStr = dateStr.substring(0,dateStr.indexOf("T"));
