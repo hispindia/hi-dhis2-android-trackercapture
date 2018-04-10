@@ -30,8 +30,8 @@ ext {
     minSdkVersion = 15
     compileSdkVersion = 23
     targetSdkVersion = 23
-    versionCode = 54
-    versionName = "1.4"
+    versionCode = 55
+    versionName = "1.5"
 
     configuration = [
             buildToolsVersion: "23.0.2",
