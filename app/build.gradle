@@ -38,8 +38,8 @@ android {
         applicationId "org.hisp.dhis.android.tvha_trackercapture"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 55
-        versionName "1.5"
+        versionCode 57
+        versionName "1.7"
     }
 
     compileSdkVersion rootProject.ext.compileSdkVersion

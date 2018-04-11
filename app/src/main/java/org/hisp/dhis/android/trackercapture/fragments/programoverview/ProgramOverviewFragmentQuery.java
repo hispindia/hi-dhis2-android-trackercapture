@@ -129,7 +129,16 @@ class ProgramOverviewFragmentQuery implements Query<ProgramOverviewFragmentForm>
                 if(indicator.getUid().equals(EDD_PROGRAM_INDICATOR)){
                     String dateStr = programOverviewFragmentForm.getEnrollment().getIncidentDate();
 
-                    dateStr = dateStr.substring(0,dateStr.indexOf("T"));
+                    //ToDO LMP DATE Change Timestamp issue
+                    if (dateStr.contains("T"))
+                    {
+                        dateStr = dateStr.substring(0,dateStr.indexOf("T"));
+                    }
+                    else
+                    {
+                        dateStr =dateStr;
+                    }
+
                     Date date = DateUtils.getMediumDate(dateStr);
                     date = DateUtils.getDateAfterAddition(date,280);
                     SimpleDateFormat format = new SimpleDateFormat(DateUtils.DEFAULT_DATE_FORMAT);
