@@ -37,6 +37,7 @@ import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.loaders.Query;
+import org.hisp.dhis.android.sdk.persistence.models.AttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.Constant;
 import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.OptionSet;
@@ -67,6 +68,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -340,13 +342,21 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
 
         trackedEntityAttributeValue.setTrackedEntityAttributeId(trackedEntityAttribute);
         //@sou DOH ID Auto Sequential
+        //ToDO count based on doh
         if(trackedEntityAttribute.equals(DOHID))
         {
+            List<Integer> teivalues=new ArrayList<>();
             String code="";
             OrganisationUnit mOrgUnit = MetaDataController.getOrganisationUnit(mOrgUnitId);
-            List<TrackedEntityInstance> tei_list= MetaDataController.getTrackedEntityInstancesFromLocal();
-            int count=tei_list.size();
-            String seq_count = String.format ("%05d", count+1);
+//            List<TrackedEntityInstance> tei_list= MetaDataController.getTrackedEntityInstancesFromLocal();
+//            int count=tei_list.size();
+            List<TrackedEntityAttributeValue> attributeValues_list=MetaDataController.getteiValues(DOHID);
+          for (TrackedEntityAttributeValue teivalue:attributeValues_list)
+          {
+              teivalues.add(Integer.parseInt(teivalue.getValue().substring(9,14)));
+          }
+            Integer max_value=Collections.max(teivalues);
+            String seq_count = String.format ("%05d", max_value+1);
             code=mOrgUnit.getCode();
             int year = Calendar.getInstance().get(Calendar.YEAR);
             String year_=String.valueOf(year);
