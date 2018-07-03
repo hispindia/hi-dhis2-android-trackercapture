@@ -30,10 +30,12 @@
 package org.hisp.dhis.android.trackercapture.fragments.enrollment;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.hisp.dhis.android.sdk.controllers.GpsController;
 import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
+import org.hisp.dhis.android.sdk.persistence.Dhis2Application;
 import org.hisp.dhis.android.sdk.persistence.loaders.Query;
 import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.OrganisationUnit;
@@ -47,15 +49,30 @@ import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.EnrollmentDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.IncidentDatePickerRow;
 import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.ShortTextEditTextRow;
+import org.hisp.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.hisp.dhis.android.sdk.utils.api.ValueType;
-
+import org.hisp.dhis.android.sdk.ui.adapters.rows.dataentry.DatePickerRow;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Weeks;
 
 class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragmentForm> {
     public static final String CLASS_TAG = EnrollmentDataEntryFragmentQuery.class.getSimpleName();
+    private static String appliedValue;
+    private static DateTime LMPVALUE;
+    private static DateTime LMPVALUE_NEW;
+    private static DateTime EDDVALUE;
+    private static Date LMP_DATE;
 
+    private final String LMPUID="";
+    private final String EDDUID="";
+    private final String GESTATIONUID="";
     private final String mOrgUnitId;
     private final String mProgramId;
     private final long mTrackedEntityInstanceId;
@@ -150,6 +167,13 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
             }
         }
         currentEnrollment.setAttributes(trackedEntityAttributeValues);
+
+        int paddingForIndex = dataEntryRows.size();
+        int lmpDate = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+        int eddDate = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+        int periodOfGestation = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+
+
         for (int i = 0; i < programTrackedEntityAttributes.size(); i++) {
             boolean editable = true;
             boolean shouldNeverBeEdited = false;
@@ -173,6 +197,20 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
                             i).getTrackedEntityAttribute().getValueType(),
                     editable, shouldNeverBeEdited, mProgram.getDataEntryMethod());
             dataEntryRows.add(row);
+
+            if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("OQphqQQNLyz"))
+            {
+                lmpDate = i;
+            }
+            else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("Ljp09Kf1Qpl"))
+            {
+                eddDate = i;
+            }
+            else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("Y1Rjo88QvH5"))
+            {
+                periodOfGestation = i;
+            }
+
         }
         for (TrackedEntityAttributeValue trackedEntityAttributeValue :
                 trackedEntityAttributeValues) {
@@ -182,6 +220,72 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
         }
         mForm.setDataEntryRows(dataEntryRows);
         mForm.setEnrollment(currentEnrollment);
+
+
+        final DatePickerRow lmpRow = (DatePickerRow) dataEntryRows.get(paddingForIndex+lmpDate);
+        final DatePickerRow eddRow = (DatePickerRow) dataEntryRows.get(paddingForIndex+eddDate);
+        final ShortTextEditTextRow gestationRow = (ShortTextEditTextRow) dataEntryRows.get(paddingForIndex+periodOfGestation);
+        final String lmpUID =programTrackedEntityAttributes.get(lmpDate).getTrackedEntityAttribute().getUid();
+        final String eddUID = programTrackedEntityAttributes.get(eddDate).getTrackedEntityAttribute().getUid();
+
+        //DateTime dateTime1 = new DateTime(date1);
+        //DateTime dateTime2 = new DateTime(date2);
+        //
+        //int weeks = Weeks.weeksBetween(dateTime1, dateTime2).getWeeks();
+
+        Dhis2Application.getEventBus().register(new DobAgeSync(){
+            @Override
+            @com.squareup.otto.Subscribe
+            public void eventHandler(RowValueChangedEvent event){
+                // Log.i(" Called ",event.getBaseValue().getValue()+"");
+                if(event.getId()!=null && event.getId().equals(lmpUID)){
+                    if(appliedValue==null || !appliedValue.equals(lmpRow.getValue().getValue()) ){
+                        //Log.i(" Called ",row.getValue().getValue());
+                        try {
+                            LMPVALUE = new DateTime(lmpRow.getValue().getValue());
+//                            DateTime CURRENT=new DateTime();
+                            DateTime CURRENT=new DateTime(enrollmentDate);
+                            LMPVALUE_NEW= LMPVALUE.plusDays(277);
+//                            if(!EDDVALUE.equals(null))
+                            {
+                                //@Sou Todo EDD/LMP Fix
+                                int weeks = (Weeks.weeksBetween(LMPVALUE, CURRENT).getWeeks());
+                                int days = (Days.daysBetween(LMPVALUE, CURRENT).getDays());
+                                DateTime newEnd = CURRENT.minusWeeks(weeks);
+                                int days_ = Days.daysBetween(newEnd, LMPVALUE).getDays()+1;
+                                weeks = (Weeks.weeksBetween(CURRENT, LMPVALUE).getWeeks());
+                                eddRow.getValue().setValue(LMPVALUE_NEW.toString().substring(0,10));
+//                                gestationRow.getValue().setValue(lmpRow.getValue().getValue().toString());
+
+                                gestationRow.getValue().setValue(String.valueOf(weeks)+" Weeks + "+String.valueOf(days_)+" Days");
+                            }
+                            EnrollmentDataEntryFragment.refreshListView();
+                        }catch (Exception ex) {
+                            Log.i("Exception ", "Converting to integer not possible");
+
+                        }
+
+                    }
+                }
+
+//                if(event.getId()!=null && event.getId().equals(eddUID)){
+//                    if(appliedValue==null || !appliedValue.equals(eddRow.getValue().getValue()) ){
+//                            //Log.i(" Called ",row.getValue().getValue());
+//                            try {
+//                                 EDDVALUE = new DateTime(eddRow.getValue().getValue());
+//                                int weeks = (Weeks.weeksBetween(LMPVALUE, EDDVALUE).getWeeks()+1);
+//                                gestationRow.getValue().setValue(String.valueOf(weeks));
+//                                EnrollmentDataEntryFragment.refreshListView();
+//                            }catch (Exception ex) {
+//                                Log.i("Exception ", "Converting to integer not possible");
+//
+//                            }
+//
+//                    }
+//                }
+            }
+
+        });
         return mForm;
     }
 
@@ -204,4 +308,22 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
         trackedEntityAttributeValues.add(trackedEntityAttributeValue);
         return trackedEntityAttributeValue;
     }
+    abstract class DobAgeSync {
+
+        public abstract void eventHandler(RowValueChangedEvent event);
+
+        public boolean equals(Object obj){
+            if(obj==null) return false;
+            if(obj instanceof DobAgeSync)
+                return true;
+            else
+                return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 143;
+        }
+    }
+
 }
