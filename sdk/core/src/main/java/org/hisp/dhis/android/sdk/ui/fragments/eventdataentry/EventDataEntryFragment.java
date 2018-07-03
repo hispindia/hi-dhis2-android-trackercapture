@@ -997,14 +997,74 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                     ,CERVICAL_TIME6,CERVICAL_TIME7,CERVICAL_TIME8,CERVICAL_TIME9,CERVICAL_TIME10};
 
             if(dvMapped.containsKey(CERVICAL_TIME1)){
-               timeFloat1 = Float.parseFloat(dvMapped.get(CERVICAL_TIME1).getValue().replace(":","."));
+//               timeFloat1 = Float.parseFloat(dvMapped.get(CERVICAL_TIME1).getValue().replace(":","."));
                 for(int i=0;i<dataElements.length;i++){
                     DataValue dvData = dvMapped.get(dataElements[i]);
                     DataValue dvTime = dvMapped.get(timeElements[i]);
                     if(dvData!=null && dvTime!=null) {
-                        float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1;
-                        float y = Float.parseFloat(dvData.getValue());
-                        entries.add(new Entry(x, y));
+                        if(dvData.getDataElement().equals(CERVICAL_READING1))
+                        {
+
+                            if(dvData.getValue().contains("4"))
+                            {
+                                timeFloat1=0;
+                            }
+                            else if(dvData.getValue().contains("5"))
+                            {
+                                timeFloat1=1;
+                            }
+                            else if(dvData.getValue().contains("6"))
+                            {
+                                timeFloat1=2;
+                            }
+                            else if(dvData.getValue().contains("7"))
+                            {
+                                timeFloat1=3;
+                            }
+                            else if(dvData.getValue().contains("8"))
+                            {
+                                timeFloat1=4;
+                            }
+                            else if(dvData.getValue().contains("9"))
+                            {
+                                timeFloat1=5;
+                            }
+                            else if(dvData.getValue().contains("10"))
+                            {
+                                timeFloat1=6;
+                            }
+                            else
+                            {
+                                if(timeFloat1>12)
+                                {
+                                    timeFloat1=timeFloat1-12;
+                                }
+
+                                timeFloat1 = Float.parseFloat(dvMapped.get(CERVICAL_TIME1).getValue().replace(":","."));
+                            }
+                            float x = timeFloat1;
+                            float y = Float.parseFloat(dvData.getValue());
+                            entries.add(new Entry(x, y));
+                        }
+                        else
+                        {
+                            timeFloat1 = Float.parseFloat(dvMapped.get(CERVICAL_TIME1).getValue().replace(":","."));
+                            if(timeFloat1>12)
+                            {
+                                timeFloat1=timeFloat1-12;
+                                float x = Float.parseFloat(dvTime.getValue().replace(":", "."))+12 - timeFloat1;
+                                float y = Float.parseFloat(dvData.getValue());
+                                entries.add(new Entry(x, y));
+                            }
+                            else
+                            {
+                                float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1;
+                                float y = Float.parseFloat(dvData.getValue());
+                                entries.add(new Entry(x, y));
+                            }
+
+                        }
+
                     }
                 }
             }
