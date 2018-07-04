@@ -337,7 +337,6 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
         }
 
         //for Doh id:
-
         TrackedEntityAttributeValue trackedEntityAttributeValue = new TrackedEntityAttributeValue();
 
         trackedEntityAttributeValue.setTrackedEntityAttributeId(trackedEntityAttribute);
@@ -348,22 +347,37 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
             List<Integer> teivalues=new ArrayList<>();
             String code="";
             OrganisationUnit mOrgUnit = MetaDataController.getOrganisationUnit(mOrgUnitId);
+            code=mOrgUnit.getCode();
 //            List<TrackedEntityInstance> tei_list= MetaDataController.getTrackedEntityInstancesFromLocal();
 //            int count=tei_list.size();
             List<TrackedEntityAttributeValue> attributeValues_list=MetaDataController.getteiValues(DOHID);
-          for (TrackedEntityAttributeValue teivalue:attributeValues_list)
-          {
-              teivalues.add(Integer.parseInt(teivalue.getValue().substring(9,14)));
-          }
-            Integer max_value=Collections.max(teivalues);
-            String seq_count = String.format ("%05d", max_value+1);
-            code=mOrgUnit.getCode();
-            int year = Calendar.getInstance().get(Calendar.YEAR);
-            String year_=String.valueOf(year);
-            String nimhans_=code+"-"+year_.toString()+"-"+seq_count;
-            trackedEntityAttributeValue.setTrackedEntityInstanceId(currentTrackedEntityInstance.getTrackedEntityInstance());
-            trackedEntityAttributeValue.setValue(nimhans_);
-            trackedEntityAttributeValues.add(trackedEntityAttributeValue);
+            if(attributeValues_list.size()>0)
+            {
+                for (TrackedEntityAttributeValue teivalue:attributeValues_list)
+                {
+                    teivalues.add(Integer.parseInt(teivalue.getValue().substring(9,14)));
+                }
+                Integer max_value=Collections.max(teivalues);
+                String seq_count = String.format ("%05d", max_value+1);
+
+                int year = Calendar.getInstance().get(Calendar.YEAR);
+                String year_=String.valueOf(year);
+                String nimhans_=code+"-"+year_.toString()+"-"+seq_count;
+                trackedEntityAttributeValue.setTrackedEntityInstanceId(currentTrackedEntityInstance.getTrackedEntityInstance());
+                trackedEntityAttributeValue.setValue(nimhans_);
+                trackedEntityAttributeValues.add(trackedEntityAttributeValue);
+            }
+            else
+            {
+                int year = Calendar.getInstance().get(Calendar.YEAR);
+                String year_=String.valueOf(year);
+                String nimhans_=code+"-"+year_.toString()+"-"+"00001";
+                trackedEntityAttributeValue.setTrackedEntityInstanceId(currentTrackedEntityInstance.getTrackedEntityInstance());
+                trackedEntityAttributeValue.setValue(nimhans_);
+                trackedEntityAttributeValues.add(trackedEntityAttributeValue);
+
+            }
+
             return trackedEntityAttributeValue;
         }
 
