@@ -348,14 +348,21 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
             String code="";
             OrganisationUnit mOrgUnit = MetaDataController.getOrganisationUnit(mOrgUnitId);
             code=mOrgUnit.getCode();
-//            List<TrackedEntityInstance> tei_list= MetaDataController.getTrackedEntityInstancesFromLocal();
-//            int count=tei_list.size();
             List<TrackedEntityAttributeValue> attributeValues_list=MetaDataController.getteiValues(DOHID);
             if(attributeValues_list.size()>0)
             {
                 for (TrackedEntityAttributeValue teivalue:attributeValues_list)
                 {
-                    teivalues.add(Integer.parseInt(teivalue.getValue().substring(9,14)));
+//                    teivalues.add(Integer.parseInt(teivalue.getValue().substring(teivalue.getValue().length()-5).replaceAll(" ", "")));
+                    if(teivalue.getValue().substring(teivalue.getValue().length()-5).replaceAll(" ", "").matches("^[0-9]{5}$"))
+                    {
+                        teivalues.add(Integer.parseInt(teivalue.getValue().substring(teivalue.getValue().length()-5).replaceAll(" ", "")));
+                    }
+                    else
+                    {
+                        Log.d("invalid-",teivalue.getValue().substring(teivalue.getValue().length()-5).replaceAll(" ", ""));
+                    }
+
                 }
                 Integer max_value=Collections.max(teivalues);
                 String seq_count = String.format ("%05d", max_value+1);
