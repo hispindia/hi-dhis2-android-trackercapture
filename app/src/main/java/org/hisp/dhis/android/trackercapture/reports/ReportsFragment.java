@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import org.hisp.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.hisp.dhis.android.sdk.controllers.tracker.TrackerController;
-import org.hisp.dhis.android.sdk.persistence.models.Constant;
 import org.hisp.dhis.android.sdk.persistence.models.Enrollment;
 import org.hisp.dhis.android.sdk.persistence.models.Event;
 import org.hisp.dhis.android.sdk.persistence.models.Relationship;
@@ -26,7 +25,6 @@ import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.hisp.dhis.android.sdk.ui.activities.OnBackPressedListener;
 import org.hisp.dhis.android.trackercapture.R;
-import org.hisp.dhis.android.trackercapture.activities.HolderActivity;
 import org.hisp.dhis.android.trackercapture.ui.adapters.ReportTableAdapter;
 
 import java.util.ArrayList;
@@ -37,7 +35,7 @@ import java.util.List;
  * Created by xelvias on 11/22/17.
  */
 
-public class ReportsFragment extends Fragment implements OnBackPressedListener{
+public class ReportsFragment extends Fragment implements OnBackPressedListener {
     static final String programID = "FcRm8N8glra";//program id for Household  Member Assessment
 
     public void onCreate(Bundle savedInstanceState){
@@ -93,7 +91,7 @@ public class ReportsFragment extends Fragment implements OnBackPressedListener{
         View view = inflater.inflate( R.layout.report_single_entity,container,false);
         TableLayout table = (TableLayout) view.findViewById(R.id.household_report_table);
         TextView householdSIN = (TextView) table.findViewById(R.id.household_header);
-        //householdSIN.setText(reportSingleEntityModel.getHouseHoldSIN());
+        householdSIN.setText(reportSingleEntityModel.getHouseHoldSIN());
 
 
         //ReportTableAdapter adapter = new ReportTableAdapter(getActivity(),table,reportSingleEntityModel.getRows());
@@ -221,7 +219,8 @@ public class ReportsFragment extends Fragment implements OnBackPressedListener{
         HashMap<String,List<TrackedEntityInstance>> mapTrackedEntityInstances = new HashMap<>();
         String logedInOrgunit = MetaDataController.getAssignedOrganisationUnits().get(0).getId();
 
-        List<TrackedEntityInstance> trackedEntityInstances = TrackerController.getTrackedEntityInstances(logedInOrgunit);
+//        List<TrackedEntityInstance> trackedEntityInstances = TrackerController.getTrackedEntityInstances(logedInOrgunit);
+        List<TrackedEntityInstance> trackedEntityInstances = TrackerController.getTrackedEntityInstances();
         for(TrackedEntityInstance tei:trackedEntityInstances){
             if(tei.getRelationships()!=null && tei.getRelationships().size()>0){
                 for(Relationship relationship :tei.getRelationships()){
@@ -240,16 +239,14 @@ public class ReportsFragment extends Fragment implements OnBackPressedListener{
         for(String key:mapTrackedEntityInstances.keySet()){
             List<TrackedEntityInstance> teiList = mapTrackedEntityInstances.get(key);
             TrackedEntityAttributeValue attributeValue = TrackerController
-                    .getTrackedEntityAttributeValue("d4w0DR8LnEZ",key);//atribute for SIN
+                    .getTrackedEntityAttributeValue("prposCvhI3e",key);//atribute for SIN
             String val = attributeValue==null?"null":attributeValue.getValue();
             ReportSingleEntityModel singleEntityModel =
                     new ReportSingleEntityModel(val);
-
-
             for(TrackedEntityInstance tei:teiList) {
                 ReportRowModel row  = new ReportRowModel();
                 row.setTrackedEntityInstanceIdLocal(tei.getLocalId());
-                TrackedEntityAttributeValue trackedEntityAttributeValue  =TrackerController.getTrackedEntityAttributeValue("d4w0DR8LnEZ",tei.getTrackedEntityInstance() );
+                TrackedEntityAttributeValue trackedEntityAttributeValue  = TrackerController.getTrackedEntityAttributeValue("d4w0DR8LnEZ",tei.getTrackedEntityInstance() );
                 row.setSin(trackedEntityAttributeValue==null?"null":trackedEntityAttributeValue.getValue());
                 Enrollment enrollment = TrackerController.getLastEnrollment(programID,tei);//, logedInOrgunit);
                 if(enrollment!=null) {
