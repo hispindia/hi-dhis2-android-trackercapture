@@ -33,6 +33,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -56,7 +57,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -125,6 +128,7 @@ import org.hisp.dhis.android.trackercapture.fragments.selectprogram.EnrollmentDa
 import org.hisp.dhis.android.trackercapture.fragments.selectprogram.IEnroller;
 import org.hisp.dhis.android.trackercapture.fragments.selectprogram.dialogs
         .ItemStatusDialogFragment;
+import org.hisp.dhis.android.trackercapture.reports.ReportSingleEntityModel;
 import org.hisp.dhis.android.trackercapture.ui.adapters.ProgramAdapter;
 import org.hisp.dhis.android.trackercapture.ui.adapters.ProgramStageAdapter;
 import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.OnProgramStageEventClick;
@@ -132,7 +136,7 @@ import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.ProgramStage
 import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.ProgramStageLabelRow;
 import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.ProgramStageRow;
 import org.joda.time.DateTime;
-
+import org.hisp.dhis.android.trackercapture.ui.adapters.ReportTableAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -160,7 +164,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     public static final String HOUSEHOLD_MEMBER_PROGRAM = "FcRm8N8glra";
     public static final String HOUSEHOLD_PROGRAM = "R8MW90zz6c3";
-    public static final String HOUSEHOLD_SIN_LABEL= "Household member study identification number";
+    public static final String HOUSEHOLD_SIN_LABEL= "Household study identification number";
 
     private ListView listView;
     private ProgressBar mProgressBar;
@@ -214,7 +218,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     }
 
     public static ProgramOverviewFragment newInstance(String orgUnitId, String programId,
-            long trackedEntityInstanceId) {
+                                                      long trackedEntityInstanceId) {
         ProgramOverviewFragment fragment = new ProgramOverviewFragment();
         Bundle args = new Bundle();
         args.putString(ORG_UNIT_ID, orgUnitId);
@@ -270,7 +274,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_programoverview, container, false);
     }
 
@@ -527,7 +531,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     @Override
     public void onLoadFinished(Loader<ProgramOverviewFragmentForm> loader,
-            ProgramOverviewFragmentForm data) {
+                               ProgramOverviewFragmentForm data) {
         if (LOADER_ID == loader.getId()) {
             mForm = data;
             mProgressBar.setVisibility(View.GONE);
@@ -648,10 +652,10 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                 programIndicatorLayout.addView(view);
             }
             for (ProgramStageRow programStageRow :data.getProgramStageRows()) {
-                    ProgramStageRow programStageEventRow = programStageRow;
-                    View view = programStageEventRow.getView(getLayoutInflater(getArguments()),
-                            null, programEventsLayout);
-                    programEventsLayout.addView(view);
+                ProgramStageRow programStageEventRow = programStageRow;
+                View view = programStageEventRow.getView(getLayoutInflater(getArguments()),
+                        null, programEventsLayout);
+                programEventsLayout.addView(view);
             }
             evaluateAndApplyProgramRules();
         }
@@ -694,20 +698,48 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                 if (relationship == null) {
                     continue;
                 }
-                LinearLayout ll = (LinearLayout) inflater.inflate(
+                RelativeLayout ll = (RelativeLayout) inflater.inflate(
                         R.layout.listview_row_relationship, null);
-                FontTextView currentTeiRelationshipLabel = (FontTextView) ll.findViewById(
-                        R.id.current_tei_relationship_label);
-                FontTextView relativeLabel = (FontTextView) ll.findViewById(
-                        R.id.relative_relationship_label);
-                Button deleteButton = (Button) ll.findViewById(R.id.delete_relationship);
-                deleteButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showConfirmDeleteRelationshipDialog(relationship,
-                                mForm.getTrackedEntityInstance(), getActivity());
-                    }
-                });
+//                FontTextView currentTeiRelationshipLabel = (FontTextView) ll.findViewById(
+//                        R.id.current_tei_relationship_label);
+//                FontTextView relativeLabel = (FontTextView) ll.findViewById(
+//                        R.id.relative_relationship_label);
+                TableLayout member_table = (TableLayout) ll.findViewById(R.id.household_member_table);
+                TextView name = (TextView) ll.findViewById(R.id.name_value);
+                TextView sin = (TextView) ll.findViewById(R.id.sin_value);
+                TextView age = (TextView) ll.findViewById(R.id.age_value);
+                TextView gender = (TextView) ll.findViewById(R.id.gender_value);
+                TextView income = (TextView) ll.findViewById(R.id.income_value);
+                TextView relation = (TextView) ll.findViewById(R.id.relation_value);
+                TextView name_ = (TextView) ll.findViewById(R.id.name);
+                TextView sin_ = (TextView) ll.findViewById(R.id.sin);
+                TextView age_ = (TextView) ll.findViewById(R.id.age);
+                TextView gender_ = (TextView) ll.findViewById(R.id.gender);
+                TextView income_ = (TextView) ll.findViewById(R.id.income);
+                TextView relation_ = (TextView) ll.findViewById(R.id.relation);
+
+                TextView formb = (TextView) ll.findViewById(R.id.formb);
+                TextView formb_ = (TextView) ll.findViewById(R.id.formb_value);
+                TextView formc = (TextView) ll.findViewById(R.id.formc);
+                TextView formc_ = (TextView) ll.findViewById(R.id.formc_value);
+                TextView formd = (TextView) ll.findViewById(R.id.formd);
+                TextView formd_ = (TextView) ll.findViewById(R.id.formd_value);
+                TextView forme = (TextView) ll.findViewById(R.id.forme);
+                TextView forme_ = (TextView) ll.findViewById(R.id.forme_value);
+                TextView formf = (TextView) ll.findViewById(R.id.formf);
+                TextView formf_ = (TextView) ll.findViewById(R.id.formf_value);
+                TextView formg = (TextView) ll.findViewById(R.id.formg);
+                TextView formg_ = (TextView) ll.findViewById(R.id.formg_value);
+
+
+//                Button deleteButton = (Button) ll.findViewById(R.id.delete_relationship);
+//                deleteButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        showConfirmDeleteRelationshipDialog(relationship,
+//                                mForm.getTrackedEntityInstance(), getActivity());
+//                    }
+//                });
                 RelationshipType relationshipType = MetaDataController.getRelationshipType(
                         relationship.getRelationship());
 
@@ -719,7 +751,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                             mForm.getTrackedEntityInstance().getTrackedEntityInstance().equals(
                                     relationship.getTrackedEntityInstanceA())) {
 
-                        currentTeiRelationshipLabel.setText(relationshipType.getaIsToB());
+//                        currentTeiRelationshipLabel.setText(relationshipType.getaIsToB());
                         relative = TrackerController.getTrackedEntityInstance(
                                 relationship.getTrackedEntityInstanceB());
 
@@ -728,18 +760,99 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                             mForm.getTrackedEntityInstance().getTrackedEntityInstance().equals(
                                     relationship.getTrackedEntityInstanceB())) {
 
-                        currentTeiRelationshipLabel.setText(relationshipType.getbIsToA());
+//                        currentTeiRelationshipLabel.setText(relationshipType.getbIsToA());
                         relative = TrackerController.getTrackedEntityInstance(
                                 relationship.getTrackedEntityInstanceA());
                     } else {
                         continue;
                     }
 
-                    String relativeString = getRelativeString(relative);
+//                    List<Event> events_=TrackerController.getEventsByEnrollment(
+//                    String relativeString = getRelativeString(relative);
+                    List<Enrollment> enrollments = TrackerController.getEnrollments(relative);
+                    List<Event> events_list=TrackerController.getEventsByEnrollment(enrollments.get(0).getLocalId());
+                    for(int k=0;k<events_list.size();k++)
+                    {
+                        if(events_list.get(k).getProgramStageId().equals("Jdp0p9vqqrK"))
+                        {
+                            formb_.setVisibility(View.VISIBLE);
+                            formb_.setText(events_list.get(k).getStatus());
+                        }
+                       else  if(events_list.get(k).getProgramStageId().equals("WdjuUKQtWIA"))
+                        {
+                            formc_.setVisibility(View.VISIBLE);
+                            formc_.setText(events_list.get(k).getStatus());
+                        }
+                        else  if(events_list.get(k).getProgramStageId().equals("pGsWKvoPrWD"))
+                        {
+                            formd_.setVisibility(View.VISIBLE);
+                            formd_.setText(events_list.get(k).getStatus());
+                        }
+                        else  if(events_list.get(k).getProgramStageId().equals("KsU7V32yLmR"))
+                        {
+                            forme_.setVisibility(View.VISIBLE);
+                            forme_.setText(events_list.get(k).getStatus());
+                        }
+                        else  if(events_list.get(k).getProgramStageId().equals("aalKtfYAAGW"))
+                        {
+                            formf_.setVisibility(View.VISIBLE);
+                            formf_.setText(events_list.get(k).getStatus());
+                        }
+                        else  if(events_list.get(k).getProgramStageId().equals("hEEnzI6agUl"))
+                        {
+                            formg_.setVisibility(View.VISIBLE);
+                            formg_.setText(events_list.get(k).getStatus());
+                        }
+                    }
+                    List<TrackedEntityAttributeValue> attributes_all =
+                            TrackerController.getTrackedEntityAttributeValues(relative.getLocalId());
+                    for(int j=0;j<attributes_all.size();j++)
+                    {
+                        if(attributes_all.get(j).getTrackedEntityAttributeId().equals("h93GNno8Y36"))
+                        {
+                            formb.setVisibility(View.VISIBLE);
+                            formc.setVisibility(View.VISIBLE);
+                            formd.setVisibility(View.VISIBLE);
+                            forme.setVisibility(View.VISIBLE);
+                            formf.setVisibility(View.VISIBLE);
+                            formg.setVisibility(View.VISIBLE);
+                            gender.setVisibility(View.VISIBLE);
+                            age.setVisibility(View.VISIBLE);
+                            age_.setVisibility(View.VISIBLE);
+                            gender_.setVisibility(View.VISIBLE);
+                            gender.setText(attributes_all.get(j).getValue());
 
-                    relativeLabel.setText(relativeString);
+                        }
+                       else if(attributes_all.get(j).getTrackedEntityAttributeId().equals("briL4htZesc"))
+                        {
+                            name.setVisibility(View.VISIBLE);
+                            name_.setVisibility(View.VISIBLE);
+                            name.setText(attributes_all.get(j).getValue());
 
-                    relativeLabel.setOnClickListener(new View.OnClickListener() {
+                        }
+                        else if(attributes_all.get(j).getTrackedEntityAttributeId().equals("hhFJ5txRqFc"))
+                        {
+                            sin.setVisibility(View.VISIBLE);
+                            sin_.setVisibility(View.VISIBLE);
+                            sin.setText(attributes_all.get(j).getValue());
+
+                        }
+                        else if(attributes_all.get(j).getTrackedEntityAttributeId().equals("MfsLMuy4V9x"))
+                        {
+                            relation.setVisibility(View.VISIBLE);
+                            relation_.setVisibility(View.VISIBLE);
+                            relation.setText(attributes_all.get(j).getValue());
+                        }
+
+                        else if(attributes_all.get(j).getTrackedEntityAttributeId().equals("ul3Fcmc8qIN"))
+                        {
+                            income.setVisibility(View.VISIBLE);
+                            income_.setVisibility(View.VISIBLE);
+                            income.setText(attributes_all.get(j).getValue());
+                        }
+                    }
+                    member_table.setVisibility(View.VISIBLE);
+                    member_table.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             moveToRelative(relationship);
@@ -781,10 +894,10 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         HolderActivity.navigateToProgramOverviewFragment(activity, mState.getOrgUnitId(), mState.getProgramId(), trackedEntityInstance.getLocalId());
     }
 
+
     private String getRelativeString(TrackedEntityInstance relative) {
 
         String relativeString = "";
-
         if (relative != null && relative.getAttributes() != null) {
             List<Enrollment> enrollments = TrackerController.getEnrollments(relative);
             List<TrackedEntityAttribute> attributesToShow = new ArrayList<>();
@@ -807,7 +920,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                     List<ProgramTrackedEntityAttribute> programTrackedEntityAttributes =
                             program.getProgramTrackedEntityAttributes();
                     for (int i = 0; i < programTrackedEntityAttributes.size() && i < 2;
-                            i++) {
+                         i++) {
                         attributesToShow.add(programTrackedEntityAttributes.get(
                                 i).getTrackedEntityAttribute());
                     }
@@ -838,7 +951,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     }
 
     public static void showConfirmDeleteRelationshipDialog(final Relationship relationship,
-            final TrackedEntityInstance trackedEntityInstance, Activity activity) {
+                                                           final TrackedEntityInstance trackedEntityInstance, Activity activity) {
         if (activity == null) return;
         UiUtils.showConfirmDialog(activity, activity.getString(R.string.confirm),
                 activity.getString(R.string.confirm_delete_relationship),
@@ -870,7 +983,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
+                                    ContextMenu.ContextMenuInfo menuInfo) {
         new MenuInflater(this.getActivity()).inflate(R.menu.long_click_event_menu, menu);
 
     }
@@ -1014,7 +1127,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     @Override
     public void showEnrollmentFragment(TrackedEntityInstance trackedEntityInstance,
-            DateTime enrollmentDate, DateTime incidentDate) {
+                                       DateTime enrollmentDate, DateTime incidentDate) {
         String enrollmentDateString = enrollmentDate.toString();
         String incidentDateString = null;
         if (incidentDate != null) {
@@ -1230,7 +1343,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     private Enrollment getLastEnrollmentForTrackedEntityInstance() {
         List<Enrollment> enrollments = TrackerController.getEnrollments(
                 mForm.getTrackedEntityInstance(), mForm.getProgram().getUid(), mForm.getTrackedEntityInstance().getOrgUnit());
-         if(enrollments==null || enrollments.size()==0) {
+        if(enrollments==null || enrollments.size()==0) {
             return null;
         }
         EnrollmentDateComparator comparator = new EnrollmentDateComparator();
@@ -1258,8 +1371,8 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     private void editTrackedEntityInstanceProfile() {
         HolderActivity.navigateToTrackedEntityInstanceProfileFragment(getActivity(),
-                    getArguments().
-                            getLong(TRACKEDENTITYINSTANCE_ID), getArguments().getString(PROGRAM_ID));
+                getArguments().
+                        getLong(TRACKEDENTITYINSTANCE_ID), getArguments().getString(PROGRAM_ID));
     }
 
     private void showAddRelationshipFragment() {
@@ -1397,7 +1510,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         String dateOfEnrollment = mForm.getDateOfEnrollmentValue();
         String dateOfIncidend = mForm.getIncidentDateValue();
         String SIN = null;
-        if(mForm.getAttribute1Label().equals(HOUSEHOLD_SIN_LABEL)){
+        if(mForm.getAttribute1Label().contains(HOUSEHOLD_SIN_LABEL)){
             SIN = mForm.getAttribute1Value();
         }
         //TODO: This value should be picked from tei attributes
@@ -1408,8 +1521,6 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         }else{
             Toast.makeText(getContext(),"No SIN Found",Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     public ProgramOverviewFragmentForm getForm() {
