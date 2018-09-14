@@ -1046,21 +1046,79 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                             float y = Float.parseFloat(dvData.getValue());
                             entries.add(new Entry(x, y));
                         }
-                        else
+                        else if(dvData.getDataElement().equals(CERVICAL_READING2))
                         {
                             timeFloat1 = Float.parseFloat(dvMapped.get(CERVICAL_TIME1).getValue().replace(":","."));
+                            entries.get(0).getX();
                             if(timeFloat1>12)
                             {
                                 timeFloat1=timeFloat1-12;
-                                float x = Float.parseFloat(dvTime.getValue().replace(":", "."))+12 - timeFloat1;
+                                float x = Float.parseFloat(dvTime.getValue().replace(":", "."));
+                                if(x>12)
+                                {
+                                    x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1-12+entries.get(0).getX();
+                                }
+                                else
+                                {
+                                    x = Float.parseFloat(dvTime.getValue().replace(":", "."))+12 - timeFloat1+entries.get(0).getX();
+                                }
                                 float y = Float.parseFloat(dvData.getValue());
                                 entries.add(new Entry(x, y));
                             }
                             else
                             {
-                                float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1;
+                                //@Sou ToDO fix for time plot
+                                if(Float.parseFloat(dvTime.getValue().replace(":", "."))<12)
+                                {
+
+                                    float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) -timeFloat1+entries.get(0).getX();
+                                    float y = Float.parseFloat(dvData.getValue());
+                                    entries.add(new Entry(x, y));
+                                }
+                                else
+                                {
+                                    float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1+entries.get(0).getX();
+                                    float y = Float.parseFloat(dvData.getValue());
+                                    entries.add(new Entry(x, y));
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            timeFloat1 = Float.parseFloat(dvMapped.get(timeElements[i-1]).getValue().replace(":","."));
+                            if(timeFloat1>12)
+                            {
+                                timeFloat1=timeFloat1-12;
+                                float x = Float.parseFloat(dvTime.getValue().replace(":", "."));
+                                if(x>12)
+                                {
+                                     x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1-12+entries.get(i-1).getX();
+                                }
+                                else
+                                {
+                                    x = Float.parseFloat(dvTime.getValue().replace(":", "."))+12 - timeFloat1+entries.get(i-1).getX();
+                                }
                                 float y = Float.parseFloat(dvData.getValue());
                                 entries.add(new Entry(x, y));
+                            }
+                            else
+                            {
+                                //@Sou ToDO fix for time plot
+                                if(Float.parseFloat(dvTime.getValue().replace(":", "."))<12)
+                                {
+
+                                    float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) -timeFloat1+entries.get(i-1).getX();
+                                    float y = Float.parseFloat(dvData.getValue());
+                                    entries.add(new Entry(x, y));
+                                }
+                                else
+                                {
+                                    float x = Float.parseFloat(dvTime.getValue().replace(":", ".")) - timeFloat1+entries.get(i-1).getX();
+                                    float y = Float.parseFloat(dvData.getValue());
+                                    entries.add(new Entry(x, y));
+                                }
+
                             }
 
                         }
@@ -1539,8 +1597,6 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             }
             super.refreshContent(e,highlight);
         }
-
-
         @Override
         public MPPointF getOffset(){
             return new MPPointF(-getChartView().getWidth()/2,0);
