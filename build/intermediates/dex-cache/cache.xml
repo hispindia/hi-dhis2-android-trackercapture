@@ -7,7 +7,7 @@
         jumboMode="true"
         optimize="true"
         revision="27.0.1"
-        sha1="9f81b296e584bf9b54e63700b8701150832d6481">
+        sha1="d9893c14493c85086926f5dbe7080e2470532bf4">
         <dex dex="/media/Workings/HISP/Android/icmr/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_d89dc2c5abd37ad6302fbba160276f1346a9f254/classes.dex" />
     </item>
     <item

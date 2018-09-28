@@ -376,6 +376,22 @@ public class EnrollmentDataEntryFragment extends DataEntryFragment<EnrollmentDat
 
     }
 
+    public void dialogFinish(){
+        if(validate()){
+            confirmSave();
+            String SIN = getArguments().getString(EnrollmentDataEntryFragment.SIN);
+            String trackedEntityInstance = getArguments().getString(EnrollmentDataEntryFragment.TRACKEDENTITYINSTANCE_SID);
+
+            if(SIN!=null && trackedEntityInstance!=null){
+                addRelationShip(trackedEntityInstance);
+            }else{
+                //Changes ends
+                showProgramOverviewFragment();
+            }
+
+        }
+    }
+
     public void addRelationShip(String trackedEntityInstance){
         Relationship relationship = new Relationship();
         relationship.setTrackedEntityInstanceB(trackedEntityInstance);

@@ -32,6 +32,7 @@ package org.hisp.dhis.android.trackercapture.fragments.programoverview;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -83,6 +84,7 @@ import org.hisp.dhis.android.sdk.persistence.models.ProgramStage;
 import org.hisp.dhis.android.sdk.persistence.models.ProgramTrackedEntityAttribute;
 import org.hisp.dhis.android.sdk.persistence.models.Relationship;
 import org.hisp.dhis.android.sdk.persistence.models.RelationshipType;
+import org.hisp.dhis.android.sdk.persistence.models.TrackedEntity;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.hisp.dhis.android.sdk.persistence.models.TrackedEntityInstance;
@@ -119,6 +121,8 @@ import org.hisp.dhis.android.sdk.utils.comparators.EnrollmentDateComparator;
 import org.hisp.dhis.android.sdk.utils.services.ProgramRuleService;
 import org.hisp.dhis.android.trackercapture.R;
 import org.hisp.dhis.android.trackercapture.activities.HolderActivity;
+import org.hisp.dhis.android.trackercapture.fragments.enrollment.EnrollmentDataEntryFragment;
+import org.hisp.dhis.android.trackercapture.fragments.enrollment.RelationshipDialogFragment;
 import org.hisp.dhis.android.trackercapture.fragments.programoverview
         .registerrelationshipdialogfragment.RegisterRelationshipDialogFragment;
 import org.hisp.dhis.android.trackercapture.fragments.selectprogram.EnrollmentDateSetterHelper;
@@ -132,8 +136,10 @@ import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.ProgramStage
 import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.ProgramStageLabelRow;
 import org.hisp.dhis.android.trackercapture.ui.rows.programoverview.ProgramStageRow;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -204,6 +210,8 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     private ProgramOverviewFragmentForm mForm;
 
     private OnProgramStageEventClick eventLongPressed;
+
+    private LinearLayout relationshipstable;
 
     public ProgramOverviewFragment() {
         setProgramRuleFragmentHelper(new ProgramOverviewRuleHelper(this));
@@ -282,6 +290,8 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         View header = getLayoutInflater(savedInstanceState).inflate(
                 R.layout.fragment_programoverview_header, listView, false
         );
+
+        relationshipstable = (LinearLayout)header.findViewById(R.id.relationships_table);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(
                 org.hisp.dhis.android.sdk.R.id.swipe_to_refresh_layout);
@@ -680,11 +690,16 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
      */
     public void setRelationships(LayoutInflater inflater) {
         relationshipsLinearLayout.removeAllViews();
+        relationshipstable.removeAllViews();
+        int count = 0;
         if (mForm.getTrackedEntityInstance() != null
                 && mForm.getTrackedEntityInstance().getRelationships() != null) {
             ListIterator<Relationship> it =
                     mForm.getTrackedEntityInstance().getRelationships().listIterator();
+            LinearLayout relationshipstableheader = (LinearLayout) inflater.inflate(R.layout.relationships_table_header,null);
+            relationshipstable.addView(relationshipstableheader);
             while (it.hasNext()) {
+                count++;
                 final Relationship relationship = it.next();
                 if (relationship == null) {
                     continue;
@@ -748,18 +763,81 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                             }
                         }
                     });
-                    relationshipsLinearLayout.addView(ll);
-                    if (it.hasNext()) {
-                        View view = new View(getActivity());
-                        view.setLayoutParams(
-                                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                        1));
-                        view.setBackgroundColor(getResources().getColor(R.color.light_grey));
-                        relationshipsLinearLayout.addView(view);
-                    }
+//                    relationshipsLinearLayout.addView(ll);
+
+                    //custom table for icmr by ifhaam on 28th september 2018
+                    LinearLayout tablerow = (LinearLayout) inflater.inflate(R.layout.relationships_table_row,null);
+                    tablerow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            moveToRelative(relationship);
+                        }
+                    });
+                    loaddatatoRow(relative,tablerow,count);
+                    relationshipstable.addView(tablerow);
+
+//                    if (it.hasNext()) {
+//                        View view = new View(getActivity());
+//                        view.setLayoutParams(
+//                                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+//                                        1));
+//                        view.setBackgroundColor(getResources().getColor(R.color.light_grey));
+//                        relationshipsLinearLayout.addView(view);
+//                    }
                 }
             }
         }
+    }
+
+    private void loaddatatoRow(TrackedEntityInstance trackedEntityInstance,LinearLayout tablerow,int count){
+        HashMap<String,TrackedEntityAttributeValue> attributeValueHashMap = new HashMap<>();
+        for(TrackedEntityAttributeValue attribute :trackedEntityInstance.getAttributes()) {
+            attributeValueHashMap.put(attribute.getTrackedEntityAttributeId(), attribute);
+        }
+            TextView notv = (TextView) tablerow.findViewById(R.id.no);
+            TextView nametv = (TextView) tablerow.findViewById(R.id.name);
+            TextView agetv = (TextView) tablerow.findViewById(R.id.age);
+            TextView gendertv = (TextView) tablerow.findViewById(R.id.gender);
+            TextView relationshiptv = (TextView) tablerow.findViewById(R.id.relationship);
+            TextView incometv = (TextView) tablerow.findViewById(R.id.income);
+            TextView statustv = (TextView) tablerow.findViewById(R.id.status);
+
+            notv.setText(count+"");
+            nametv.setText(attributeValueHashMap
+                    .get("briL4htZesc")==null?"":attributeValueHashMap.get("briL4htZesc").getValue());
+
+            agetv.setText(getAgeString(attributeValueHashMap
+                    .get("ejebQfmPT8v")==null?"":attributeValueHashMap.get("ejebQfmPT8v").getValue()));
+
+
+            gendertv.setText(attributeValueHashMap
+                    .get("h93GNno8Y36")==null?"":attributeValueHashMap.get("h93GNno8Y36").getValue());
+            relationshiptv.setText(attributeValueHashMap
+                    .get("MfsLMuy4V9x")==null?"":attributeValueHashMap.get("MfsLMuy4V9x").getValue());
+            incometv.setText(attributeValueHashMap
+                    .get("ul3Fcmc8qIN")==null?"":attributeValueHashMap.get("ul3Fcmc8qIN").getValue());
+            statustv.setText(trackedEntityInstance.isFromServer()?"Saved":"Edited");
+
+
+
+    }
+
+    private String getAgeString(String dateValue){
+        //ejebQfmPT8v
+        if(dateValue==null || dateValue.equals("")){
+            return "";
+        }
+        DateTime dob = new DateTime(dateValue);
+        DateTime today = DateTime.now();
+
+        DateTime minus = today.minus(dob.getMillis());
+        int year = -1970;
+        int month = -1;
+        year += minus.getYear();
+        month+=minus.getMonthOfYear();
+
+
+        return year+"/"+month;
     }
 
     private void moveToRelative(Relationship relationship) {
@@ -1397,9 +1475,15 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         }
         //TODO: This value should be picked from tei attributes
         if(SIN!=null){
-            HolderActivity.navigateToEnrollmentDataEntryFragment(getActivity(),orgId,programId,
+            showRelationshipDataEntry(orgId,programId,
                     dateOfEnrollment,dateOfIncidend,
                     mForm.getTrackedEntityInstance().getTrackedEntityInstance(),SIN);
+
+
+
+//            HolderActivity.navigateToEnrollmentDataEntryFragment(getActivity(),orgId,programId,
+//                    dateOfEnrollment,dateOfIncidend,
+//                    mForm.getTrackedEntityInstance().getTrackedEntityInstance(),SIN);
         }else{
             Toast.makeText(getContext(),"No SIN Found",Toast.LENGTH_SHORT).show();
         }
@@ -1436,4 +1520,26 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                     }
                 });
     }
+
+    private void showRelationshipDataEntry(String orgUnitId,String programId,String dateOfEnrollment
+            ,String dateOfIncident,String sIN,String trackedEntityInstance) {
+        Intent intent = new Intent();
+        intent.putExtra(EnrollmentDataEntryFragment.ORG_UNIT_ID, orgUnitId);
+        intent.putExtra(EnrollmentDataEntryFragment.PROGRAM_ID, programId);
+        intent.putExtra(EnrollmentDataEntryFragment.ENROLLMENT_DATE, dateOfEnrollment);
+        intent.putExtra(EnrollmentDataEntryFragment.INCIDENT_DATE, dateOfIncident);
+        intent.putExtra(EnrollmentDataEntryFragment.SIN,sIN);
+        intent.putExtra(EnrollmentDataEntryFragment.TRACKEDENTITYINSTANCE_SID,trackedEntityInstance);
+
+        RelationshipDialogFragment fragment = new RelationshipDialogFragment();
+        fragment.setArguments(intent.getExtras());
+        fragment.show(getFragmentManager(),"RDF");
+
+//        getFragmentManager().beginTransaction().replace(R.id.relationship_nested_dataentry, fragment).commit();
+
+
+
+
+    }
+
 }
