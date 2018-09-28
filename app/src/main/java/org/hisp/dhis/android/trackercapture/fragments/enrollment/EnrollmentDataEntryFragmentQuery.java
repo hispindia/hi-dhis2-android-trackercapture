@@ -82,8 +82,8 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
     private Enrollment currentEnrollment;
 
     EnrollmentDataEntryFragmentQuery(String mOrgUnitId, String mProgramId,
-            long mTrackedEntityInstanceId,
-            String enrollmentDate, String incidentDate) {
+                                     long mTrackedEntityInstanceId,
+                                     String enrollmentDate, String incidentDate) {
         this.mOrgUnitId = mOrgUnitId;
         this.mProgramId = mProgramId;
         this.mTrackedEntityInstanceId = mTrackedEntityInstanceId;
@@ -168,129 +168,158 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
         }
         currentEnrollment.setAttributes(trackedEntityAttributeValues);
 
-        int paddingForIndex = dataEntryRows.size();
-        int lmpDate = -1;//added to manupulate or dynamicly change the row value based on user input for the other
-        int eddDate = -1;//added to manupulate or dynamicly change the row value based on user input for the other
-        int periodOfGestation = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+        if(mProgram.getUid().equals("bNhQuFV59bs"))
+        {
+            int paddingForIndex = dataEntryRows.size();
+            int lmpDate = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+            int eddDate = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+            int periodOfGestation = -1;//added to manupulate or dynamicly change the row value based on user input for the other
 
 
-        for (int i = 0; i < programTrackedEntityAttributes.size(); i++) {
-            boolean editable = true;
-            boolean shouldNeverBeEdited = false;
-            if (programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().isGenerated()) {
-                editable = false;
-                shouldNeverBeEdited = true;
-            }
-            if (ValueType.COORDINATE.equals(programTrackedEntityAttributes.get(
-                    i).getTrackedEntityAttribute().getValueType())) {
-                GpsController.activateGps(context);
-            }
-            Row row = DataEntryRowFactory.createDataEntryView(
-                    programTrackedEntityAttributes.get(i).getMandatory(),
-                    programTrackedEntityAttributes.get(i).getAllowFutureDate(),
-                    programTrackedEntityAttributes.get(
-                            i).getTrackedEntityAttribute().getOptionSet(),
-                    programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getName(),
-                    getTrackedEntityDataValue(programTrackedEntityAttributes.get(i).
-                            getTrackedEntityAttribute().getUid(), trackedEntityAttributeValues),
-                    programTrackedEntityAttributes.get(
-                            i).getTrackedEntityAttribute().getValueType(),
-                    editable, shouldNeverBeEdited, mProgram.getDataEntryMethod());
-            dataEntryRows.add(row);
+            for (int i = 0; i < programTrackedEntityAttributes.size(); i++) {
+                boolean editable = true;
+                boolean shouldNeverBeEdited = false;
+                if (programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().isGenerated()) {
+                    editable = false;
+                    shouldNeverBeEdited = true;
+                }
+                if (ValueType.COORDINATE.equals(programTrackedEntityAttributes.get(
+                        i).getTrackedEntityAttribute().getValueType())) {
+                    GpsController.activateGps(context);
+                }
+                Row row = DataEntryRowFactory.createDataEntryView(
+                        programTrackedEntityAttributes.get(i).getMandatory(),
+                        programTrackedEntityAttributes.get(i).getAllowFutureDate(),
+                        programTrackedEntityAttributes.get(
+                                i).getTrackedEntityAttribute().getOptionSet(),
+                        programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getName(),
+                        getTrackedEntityDataValue(programTrackedEntityAttributes.get(i).
+                                getTrackedEntityAttribute().getUid(), trackedEntityAttributeValues),
+                        programTrackedEntityAttributes.get(
+                                i).getTrackedEntityAttribute().getValueType(),
+                        editable, shouldNeverBeEdited, mProgram.getDataEntryMethod());
+                dataEntryRows.add(row);
 
-            if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("OQphqQQNLyz"))
-            {
-                lmpDate = i;
-            }
-            else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("Ljp09Kf1Qpl"))
-            {
-                eddDate = i;
-            }
-            else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("Y1Rjo88QvH5"))
-            {
-                periodOfGestation = i;
-            }
-
-        }
-        for (TrackedEntityAttributeValue trackedEntityAttributeValue :
-                trackedEntityAttributeValues) {
-            mForm.getTrackedEntityAttributeValueMap().put(
-                    trackedEntityAttributeValue.getTrackedEntityAttributeId(),
-                    trackedEntityAttributeValue);
-        }
-        mForm.setDataEntryRows(dataEntryRows);
-        mForm.setEnrollment(currentEnrollment);
-
-
-        final DatePickerRow lmpRow = (DatePickerRow) dataEntryRows.get(paddingForIndex+lmpDate);
-        final DatePickerRow eddRow = (DatePickerRow) dataEntryRows.get(paddingForIndex+eddDate);
-        final ShortTextEditTextRow gestationRow = (ShortTextEditTextRow) dataEntryRows.get(paddingForIndex+periodOfGestation);
-        final String lmpUID =programTrackedEntityAttributes.get(lmpDate).getTrackedEntityAttribute().getUid();
-        final String eddUID = programTrackedEntityAttributes.get(eddDate).getTrackedEntityAttribute().getUid();
-
-        //DateTime dateTime1 = new DateTime(date1);
-        //DateTime dateTime2 = new DateTime(date2);
-        //
-        //int weeks = Weeks.weeksBetween(dateTime1, dateTime2).getWeeks();
-
-        Dhis2Application.getEventBus().register(new DobAgeSync(){
-            @Override
-            @com.squareup.otto.Subscribe
-            public void eventHandler(RowValueChangedEvent event){
-                // Log.i(" Called ",event.getBaseValue().getValue()+"");
-                if(event.getId()!=null && event.getId().equals(lmpUID)){
-                    if(appliedValue==null || !appliedValue.equals(lmpRow.getValue().getValue()) ){
-                        //Log.i(" Called ",row.getValue().getValue());
-                        try {
-                            LMPVALUE = new DateTime(lmpRow.getValue().getValue());
-//                            DateTime CURRENT=new DateTime();
-                            DateTime CURRENT=new DateTime(enrollmentDate);
-                            LMPVALUE_NEW= LMPVALUE.plusDays(277);
-//                            if(!EDDVALUE.equals(null))
-                            {
-                                //@Sou Todo EDD/LMP Fix
-                                int weeks = (Weeks.weeksBetween(LMPVALUE, CURRENT).getWeeks());
-                                int days = (Days.daysBetween(LMPVALUE, CURRENT).getDays());
-                                DateTime newEnd = CURRENT.minusWeeks(weeks);
-                                int days_ = Days.daysBetween(newEnd, LMPVALUE).getDays()+1;
-                                weeks = (Weeks.weeksBetween(CURRENT, LMPVALUE).getWeeks());
-                                eddRow.getValue().setValue(LMPVALUE_NEW.toString().substring(0,10));
-//                                gestationRow.getValue().setValue(lmpRow.getValue().getValue().toString());
-
-                                gestationRow.getValue().setValue(String.valueOf(weeks)+" Weeks + "+String.valueOf(days_)+" Days");
-                            }
-                            EnrollmentDataEntryFragment.refreshListView();
-                        }catch (Exception ex) {
-                            Log.i("Exception ", "Converting to integer not possible");
-
-                        }
-
-                    }
+                if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("OQphqQQNLyz"))
+                {
+                    lmpDate = i;
+                }
+                else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("Ljp09Kf1Qpl"))
+                {
+                    eddDate = i;
+                }
+                else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals("Y1Rjo88QvH5"))
+                {
+                    periodOfGestation = i;
                 }
 
-//                if(event.getId()!=null && event.getId().equals(eddUID)){
-//                    if(appliedValue==null || !appliedValue.equals(eddRow.getValue().getValue()) ){
-//                            //Log.i(" Called ",row.getValue().getValue());
-//                            try {
-//                                 EDDVALUE = new DateTime(eddRow.getValue().getValue());
-//                                int weeks = (Weeks.weeksBetween(LMPVALUE, EDDVALUE).getWeeks()+1);
-//                                gestationRow.getValue().setValue(String.valueOf(weeks));
-//                                EnrollmentDataEntryFragment.refreshListView();
-//                            }catch (Exception ex) {
-//                                Log.i("Exception ", "Converting to integer not possible");
-//
-//                            }
-//
-//                    }
-//                }
             }
+            for (TrackedEntityAttributeValue trackedEntityAttributeValue :
+                    trackedEntityAttributeValues) {
+                mForm.getTrackedEntityAttributeValueMap().put(
+                        trackedEntityAttributeValue.getTrackedEntityAttributeId(),
+                        trackedEntityAttributeValue);
+            }
+            mForm.setDataEntryRows(dataEntryRows);
+            mForm.setEnrollment(currentEnrollment);
 
-        });
-        return mForm;
+
+            final DatePickerRow lmpRow = (DatePickerRow) dataEntryRows.get(paddingForIndex+lmpDate);
+            final DatePickerRow eddRow = (DatePickerRow) dataEntryRows.get(paddingForIndex+eddDate);
+            final ShortTextEditTextRow gestationRow = (ShortTextEditTextRow) dataEntryRows.get(paddingForIndex+periodOfGestation);
+            final String lmpUID =programTrackedEntityAttributes.get(lmpDate).getTrackedEntityAttribute().getUid();
+            final String eddUID = programTrackedEntityAttributes.get(eddDate).getTrackedEntityAttribute().getUid();
+
+            //DateTime dateTime1 = new DateTime(date1);
+            //DateTime dateTime2 = new DateTime(date2);
+            //
+            //int weeks = Weeks.weeksBetween(dateTime1, dateTime2).getWeeks();
+
+            Dhis2Application.getEventBus().register(new DobAgeSync(){
+                @Override
+                @com.squareup.otto.Subscribe
+                public void eventHandler(RowValueChangedEvent event){
+                    // Log.i(" Called ",event.getBaseValue().getValue()+"");
+                    if(event.getId()!=null && event.getId().equals(lmpUID)){
+                        if(appliedValue==null || !appliedValue.equals(lmpRow.getValue().getValue()) ){
+                            //Log.i(" Called ",row.getValue().getValue());
+                            try {
+                                LMPVALUE = new DateTime(lmpRow.getValue().getValue());
+//                            DateTime CURRENT=new DateTime();
+                                DateTime CURRENT=new DateTime(enrollmentDate);
+                                LMPVALUE_NEW= LMPVALUE.plusDays(277);
+//                            if(!EDDVALUE.equals(null))
+                                {
+                                    //@Sou Todo EDD/LMP Fix
+                                    int weeks = (Weeks.weeksBetween(LMPVALUE, CURRENT).getWeeks());
+                                    int days = (Days.daysBetween(LMPVALUE, CURRENT).getDays());
+                                    DateTime newEnd = CURRENT.minusWeeks(weeks);
+                                    int days_ = Days.daysBetween(newEnd, LMPVALUE).getDays()+1;
+                                    weeks = (Weeks.weeksBetween(CURRENT, LMPVALUE).getWeeks());
+                                    eddRow.getValue().setValue(LMPVALUE_NEW.toString().substring(0,10));
+//                                gestationRow.getValue().setValue(lmpRow.getValue().getValue().toString());
+
+                                    gestationRow.getValue().setValue(String.valueOf(Math.abs(weeks))+" Weeks + "+String.valueOf(Math.abs(days_))+" Days");
+                                }
+                                EnrollmentDataEntryFragment.refreshListView();
+                            }catch (Exception ex) {
+                                Log.i("Exception ", "Converting to integer not possible");
+
+                            }
+
+                        }
+                    }
+
+                }
+
+            });
+            return mForm;
+        }
+        else
+        {
+
+            for (int i = 0; i < programTrackedEntityAttributes.size(); i++) {
+                boolean editable = true;
+                boolean shouldNeverBeEdited = false;
+                if (programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().isGenerated()) {
+                    editable = false;
+                    shouldNeverBeEdited = true;
+                }
+                if (ValueType.COORDINATE.equals(programTrackedEntityAttributes.get(
+                        i).getTrackedEntityAttribute().getValueType())) {
+                    GpsController.activateGps(context);
+                }
+                Row row = DataEntryRowFactory.createDataEntryView(
+                        programTrackedEntityAttributes.get(i).getMandatory(),
+                        programTrackedEntityAttributes.get(i).getAllowFutureDate(),
+                        programTrackedEntityAttributes.get(
+                                i).getTrackedEntityAttribute().getOptionSet(),
+                        programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getName(),
+                        getTrackedEntityDataValue(programTrackedEntityAttributes.get(i).
+                                getTrackedEntityAttribute().getUid(), trackedEntityAttributeValues),
+                        programTrackedEntityAttributes.get(
+                                i).getTrackedEntityAttribute().getValueType(),
+                        editable, shouldNeverBeEdited, mProgram.getDataEntryMethod());
+                dataEntryRows.add(row);
+
+            }
+            for (TrackedEntityAttributeValue trackedEntityAttributeValue :
+                    trackedEntityAttributeValues) {
+                mForm.getTrackedEntityAttributeValueMap().put(
+                        trackedEntityAttributeValue.getTrackedEntityAttributeId(),
+                        trackedEntityAttributeValue);
+            }
+            mForm.setDataEntryRows(dataEntryRows);
+            mForm.setEnrollment(currentEnrollment);
+
+            return mForm;
+
+        }
+
     }
 
     public TrackedEntityAttributeValue getTrackedEntityDataValue(String trackedEntityAttribute,
-            List<TrackedEntityAttributeValue> trackedEntityAttributeValues) {
+                                                                 List<TrackedEntityAttributeValue> trackedEntityAttributeValues) {
         for (TrackedEntityAttributeValue trackedEntityAttributeValue :
                 trackedEntityAttributeValues) {
             if (trackedEntityAttributeValue.getTrackedEntityAttributeId().equals(
