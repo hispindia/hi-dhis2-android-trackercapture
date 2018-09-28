@@ -93,7 +93,8 @@ public class EnrollmentDataEntryFragment extends DataEntryFragment<EnrollmentDat
     public static final String PROGRAMRULES_FORCED_TRIGGER = "forced";
     public static final String SIN = "extra:SIN";
     public static final String TRACKEDENTITYINSTANCE_SID = "extra:TrakcedEntityInstanceServerID";
-    public static final String HOUSEHOLDMEMBER_SIN_ATTR_ID = "prposCvhI3e";
+    public static final String HOUSEHOLDMEMBER_SIN_ATTR_ID = "d4w0DR8LnEZ";
+//    public static final String HOUSEHOLDMEMBER_SIN_ATTR_ID = "prposCvhI3e";
     public static final String HOUSEHOLD_SIN_ATTR_ID = "d4w0DR8LnEZ";
     public static final String RELATIONSHIP_TYPE="Flgwb7t7w1X";
     private EnrollmentDataEntryFragmentForm form;

@@ -3,57 +3,21 @@
 
     <item
         is-multidex="true"
-        jar="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jar="/media/Workings/HISP/Android/icmr/dhis2-android-trackercapture/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
         jumboMode="true"
         optimize="true"
         revision="27.0.1"
-        sha1="dc7519c5ffdda226bb33b51584b88233e9c3fcdc">
-        <dex dex="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_6974c249711d0eafab0a0e65ed96d44431a99daf/classes.dex" />
+        sha1="9f81b296e584bf9b54e63700b8701150832d6481">
+        <dex dex="/media/Workings/HISP/Android/icmr/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_d89dc2c5abd37ad6302fbba160276f1346a9f254/classes.dex" />
     </item>
     <item
         is-multidex="true"
-        jar="/home/xelvias/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/25.1.1/support-annotations-25.1.1.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="27.0.1"
-        sha1="b59b6ee8d6ecc03e672d253800430343493a6ed8">
-        <dex dex="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-25.1.1_96d9828743d801fb5c4c002de9e44ca2eac356cf/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jar="/media/Workings/HISP/Android/icmr/dhis2-android-trackercapture/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
         jumboMode="true"
         optimize="true"
         revision="27.0.1"
         sha1="12920f9016b8b05acbc2af7cdc13cef6946fe7d3">
-        <dex dex="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_91c43e070a810f0e0de58c30af61f4d09b38f4de/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="/home/xelvias/.android/build-cache/c48b57243b0a33d204435f4033c89c3ea5284abb/output/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="27.0.1"
-        sha1="117041902bff877baede85087fb4117cccde7968">
-        <dex dex="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10/classes_cadcdecb2d3a055538a6e68a8bcf8655eb4a2295/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="/home/xelvias/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.5/686c608d1805b6d4d425ec4459e88164ffc85870/gson-2.5.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="27.0.1"
-        sha1="686c608d1805b6d4d425ec4459e88164ffc85870">
-        <dex dex="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10/gson-2.5_fdf5ef355d46643479b169b0eb6ec45a2fbf28b1/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="/home/xelvias/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.0.0-RC1/be7e96331952019f16dc52dce09ab25df29353d7/okhttp-3.0.0-RC1.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="27.0.1"
-        sha1="be7e96331952019f16dc52dce09ab25df29353d7">
-        <dex dex="/media/Workings/HISP/Android/icmr/28-12-2017/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10/okhttp-3.0.0-RC1_aa21609ecca7bf75b50ff8ae1da6b46204f9046c/classes.dex" />
+        <dex dex="/media/Workings/HISP/Android/icmr/dhis2-android-trackercapture/app/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_767e0c9b3fc50e38ac119a7d5308c068ac707f44/classes.dex" />
     </item>
 
 </items>
