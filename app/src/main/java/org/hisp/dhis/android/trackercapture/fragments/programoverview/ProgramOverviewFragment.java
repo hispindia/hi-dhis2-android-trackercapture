@@ -1476,8 +1476,8 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         //TODO: This value should be picked from tei attributes
         if(SIN!=null){
             showRelationshipDataEntry(orgId,programId,
-                    dateOfEnrollment,dateOfIncidend,
-                    mForm.getTrackedEntityInstance().getTrackedEntityInstance(),SIN);
+                    dateOfEnrollment,dateOfIncidend,SIN,
+                    mForm.getTrackedEntityInstance().getTrackedEntityInstance());
 
 
 
