@@ -168,11 +168,9 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     private ProgressBar mProgressBar;
     private ProgramStageAdapter adapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
     private View mSpinnerContainer;
     private Spinner mSpinner;
     private ProgramAdapter mSpinnerAdapter;
-
     private LinearLayout enrollmentLayout;
     private TextView enrollmentDateLabel;
     private TextView enrollmentDateValue;
@@ -794,29 +792,91 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         for(TrackedEntityAttributeValue attribute :trackedEntityInstance.getAttributes()) {
             attributeValueHashMap.put(attribute.getTrackedEntityAttributeId(), attribute);
         }
-            TextView notv = (TextView) tablerow.findViewById(R.id.no);
-            TextView nametv = (TextView) tablerow.findViewById(R.id.name);
-            TextView agetv = (TextView) tablerow.findViewById(R.id.age);
-            TextView gendertv = (TextView) tablerow.findViewById(R.id.gender);
-            TextView relationshiptv = (TextView) tablerow.findViewById(R.id.relationship);
-            TextView incometv = (TextView) tablerow.findViewById(R.id.income);
-            TextView statustv = (TextView) tablerow.findViewById(R.id.status);
 
-            notv.setText(count+"");
-            nametv.setText(attributeValueHashMap
-                    .get("briL4htZesc")==null?"":attributeValueHashMap.get("briL4htZesc").getValue());
+        TextView notv = (TextView) tablerow.findViewById(R.id.no);
+        TextView nametv = (TextView) tablerow.findViewById(R.id.name);
+        TextView agetv = (TextView) tablerow.findViewById(R.id.age);
+        TextView gendertv = (TextView) tablerow.findViewById(R.id.gender);
+        TextView relationshiptv = (TextView) tablerow.findViewById(R.id.relationship);
+        TextView incometv = (TextView) tablerow.findViewById(R.id.income);
+        TextView statustv = (TextView) tablerow.findViewById(R.id.status);
 
-            agetv.setText(getAgeString(attributeValueHashMap
-                    .get("ejebQfmPT8v")==null?"":attributeValueHashMap.get("ejebQfmPT8v").getValue()));
+        notv.setText(count+"");
+        nametv.setText(attributeValueHashMap
+                .get("briL4htZesc")==null?"":attributeValueHashMap.get("briL4htZesc").getValue());
+
+        agetv.setText(getAgeString(attributeValueHashMap
+                .get("ejebQfmPT8v")==null?"":attributeValueHashMap.get("ejebQfmPT8v").getValue()));
 
 
-            gendertv.setText(attributeValueHashMap
-                    .get("h93GNno8Y36")==null?"":attributeValueHashMap.get("h93GNno8Y36").getValue());
-            relationshiptv.setText(attributeValueHashMap
-                    .get("MfsLMuy4V9x")==null?"":attributeValueHashMap.get("MfsLMuy4V9x").getValue());
-            incometv.setText(attributeValueHashMap
-                    .get("ul3Fcmc8qIN")==null?"":attributeValueHashMap.get("ul3Fcmc8qIN").getValue());
-            statustv.setText(trackedEntityInstance.isFromServer()?"Saved":"Edited");
+        gendertv.setText(attributeValueHashMap
+                .get("h93GNno8Y36")==null?"":attributeValueHashMap.get("h93GNno8Y36").getValue());
+        relationshiptv.setText(attributeValueHashMap
+                .get("MfsLMuy4V9x")==null?"":attributeValueHashMap.get("MfsLMuy4V9x").getValue());
+        incometv.setText(attributeValueHashMap
+                .get("ul3Fcmc8qIN")==null?"":attributeValueHashMap.get("ul3Fcmc8qIN").getValue());
+
+
+
+        List<Enrollment> enrollment1=TrackerController.getEnrollments(trackedEntityInstance);
+        String status="";
+        if(enrollment1!=null)
+        {
+            if(enrollment1.get(0).getProgram().getUid().equals("FcRm8N8glra"))
+            {
+                List<Event> events = TrackerController.getEventsByEnrollment(enrollment1.get(0).getEnrollment());
+                for (int i=0;i<events.size();i++)
+                {
+                    if(events.get(i).getStatus().equals("COMPLETED"))
+                    {
+                        if (events.get(i).getProgramStageId().equals("Jdp0p9vqqrK"))
+                        {
+                            status=status+"FORM-B";
+
+                        }
+                        else if (events.get(i).getProgramStageId().equals("WdjuUKQtWIA"))
+                        {
+                            status=status+",FORM-C";
+
+                        }
+                        else if (events.get(i).getProgramStageId().equals("pGsWKvoPrWD"))
+                        {
+                            status=status+",FORM-D";
+
+                        }
+                        else if (events.get(i).getProgramStageId().equals("KsU7V32yLmR"))
+                        {
+                            status=status+",FORM-E";
+
+                        }
+                        else if (events.get(i).getProgramStageId().equals("aalKtfYAAGW"))
+                        {
+                            status=status+",FORM-F";
+
+                        }
+                        else if (events.get(i).getProgramStageId().equals("hEEnzI6agUl"))
+                        {
+                            status=status+",FORM-G1";
+
+                        }
+                        else if (events.get(i).getProgramStageId().equals("DCli6WFSiGK"))
+                        {
+                            status=status+",FORM-G2";
+
+                        }
+
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+        statustv.setText(status);
 
 
 
@@ -857,7 +917,6 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     private String getRelativeString(TrackedEntityInstance relative) {
 
         String relativeString = "";
-
         if (relative != null && relative.getAttributes() != null) {
             List<Enrollment> enrollments = TrackerController.getEnrollments(relative);
             List<TrackedEntityAttribute> attributesToShow = new ArrayList<>();
@@ -1470,9 +1529,13 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         String dateOfEnrollment = mForm.getDateOfEnrollmentValue();
         String dateOfIncidend = mForm.getIncidentDateValue();
         String SIN = null;
-        if(mForm.getAttribute1Label().equals(HOUSEHOLD_SIN_LABEL)){
-            SIN = mForm.getAttribute1Value();
+        if(mForm.getAttribute1Label()!=null)
+        {
+            if(mForm.getAttribute1Label().equals(HOUSEHOLD_SIN_LABEL)){
+                SIN = mForm.getAttribute1Value();
+            }
         }
+
         //TODO: This value should be picked from tei attributes
         if(SIN!=null){
             showRelationshipDataEntry(orgId,programId,
