@@ -28,3 +28,6 @@ git checkout tracker-capture
 ```
 
 Then open Android Studio, select "Open an existing Android Studio project", and select the build.gradle in dhis2-android-trackercapture/
+
+
+E-Partograph Privacy policy: https://sites.google.com/view/hispappepartograph/home
