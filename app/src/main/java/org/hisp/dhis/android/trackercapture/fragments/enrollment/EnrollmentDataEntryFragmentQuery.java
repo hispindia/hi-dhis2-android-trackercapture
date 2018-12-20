@@ -275,6 +275,67 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
             });
             return mForm;
         }
+        else if(mProgram.getUid().equals(A_HOUSEHOLD_PROGRAM))
+       {
+           int paddingForIndex = dataEntryRows.size();
+
+           int region_attr = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+           int rsite_attr = -1;//added to manupulate or dynamicly change the row value based on user input for the other
+
+
+           for (int i = 0; i < programTrackedEntityAttributes.size(); i++) {
+               boolean editable = true;
+               boolean shouldNeverBeEdited = false;
+               if (programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().isGenerated()) {
+                   editable = false;
+                   shouldNeverBeEdited = true;
+               }
+               if (ValueType.COORDINATE.equals(programTrackedEntityAttributes.get(
+                       i).getTrackedEntityAttribute().getValueType())) {
+                   GpsController.activateGps(context);
+               }
+               Row row = DataEntryRowFactory.createDataEntryView(
+                       programTrackedEntityAttributes.get(i).getMandatory(),
+                       programTrackedEntityAttributes.get(i).getAllowFutureDate(),
+                       programTrackedEntityAttributes.get(
+                               i).getTrackedEntityAttribute().getOptionSet(),
+                       programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getName(),
+                       getTrackedEntityDataValue(programTrackedEntityAttributes.get(i).
+                               getTrackedEntityAttribute().getUid(), trackedEntityAttributeValues),
+                       programTrackedEntityAttributes.get(
+                               i).getTrackedEntityAttribute().getValueType(),
+                       editable, shouldNeverBeEdited, mProgram.getDataEntryMethod());
+               dataEntryRows.add(row);
+
+
+             if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals(REGION_ATTR_UID))
+               {
+                   region_attr = i;
+               }
+
+               else if(programTrackedEntityAttributes.get(i).getTrackedEntityAttribute().getUid().equals(SITE_ATTR_UID))
+               {
+                   rsite_attr = i;
+               }
+
+           }
+           for (TrackedEntityAttributeValue trackedEntityAttributeValue :
+                   trackedEntityAttributeValues) {
+               mForm.getTrackedEntityAttributeValueMap().put(
+                       trackedEntityAttributeValue.getTrackedEntityAttributeId(),
+                       trackedEntityAttributeValue);
+           }
+           mForm.setDataEntryRows(dataEntryRows);
+           mForm.setEnrollment(currentEnrollment);
+
+           final ShortTextEditTextRow region_Row = (ShortTextEditTextRow)  dataEntryRows.get(paddingForIndex+region_attr);
+           OrganisationUnit ou=MetaDataController.getOrganisationUnitbyPhone(mForm.getOrganisationUnit().getId());
+
+           region_Row.getValue().setValue(ou.getCode());
+           region_Row.setEditable(false);
+           region_Row.isShouldNeverBeEdited();
+           return mForm;
+       }
         else
         {
 
