@@ -325,7 +325,16 @@ public class VariableService {
                 String optionSetCode = trackedEntityAttributeValueToReplaceCodeWithValue.getValue();
                 Option option = new Select().from(Option.class).where(Condition.column(Option$Table.OPTIONSET).eq(trackedEntityAttributeWithOptionSet.getOptionSet())).and(Condition.column(Option$Table.CODE).eq(optionSetCode)).querySingle();
                 if(option != null) {
+
+                  if(option.getName().equalsIgnoreCase(URBAN_CHECK)||option.getName().equalsIgnoreCase(RURAL_CHECK))
+                  {
+                    trackedEntityAttributeValueToReplaceCodeWithValue.setValue(option.getCode());
+                  }
+                  else
+                  {
                     trackedEntityAttributeValueToReplaceCodeWithValue.setValue(option.getName());
+                  }
+
                 }
             }
 
