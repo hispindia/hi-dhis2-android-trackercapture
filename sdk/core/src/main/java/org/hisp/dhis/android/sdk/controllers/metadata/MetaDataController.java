@@ -629,6 +629,40 @@ public final class MetaDataController extends ResourceController {
         Log.d(CLASS_TAG, "loadMetaData");
         UiUtils.postProgressMessage(context.getString(R.string.loading_metadata),
                 LoadingMessageEvent.EventType.METADATA);
+
+
+                Httphandler sh = new Httphandler();
+        Map<String, List<OrganisationUnit>> levelOrganisations = null;
+        List<OrganisationUnit> organisationslevel = null;
+        Map<String, String> queryMap2 = new HashMap<>();
+        queryMap2.put("fields", "organisationUnits[id,displayName,code]");
+        levelOrganisations = dhisApi.getOrganisationUnits_me(queryMap2);
+        organisationslevel = levelOrganisations.get("organisationUnits");
+
+        if(organisationslevel!=null)
+        {
+            for(int i=0;i<organisationslevel.size();i++)
+            {
+                String jsonStr = sh.makeServiceCall(url+organisationslevel.get(i).getId());
+
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+                    JSONArray alluids = jsonObj.getJSONArray("rows");
+                    OrganisationUnit ou_new=new OrganisationUnit();
+                    ou_new.setPhoneNumber(organisationslevel.get(i).getId());
+                    ou_new.setLabel(organisationslevel.get(i).getId());
+                    ou_new.setCode(alluids.getJSONArray(0).getString(7)+alluids.getJSONArray(0).getString(4));
+                    ou_new.save();
+                }
+                catch (final JSONException e) {
+                    Log.d("jsonStr",url);
+
+                }
+
+            }
+
+        }
+
         updateMetaDataItems(context, dhisApi, syncStrategy);
     }
 
